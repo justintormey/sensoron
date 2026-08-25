@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SensorOn</title>
+  <meta name="description" content="The SensorOn Standard (SOS): an open, testable status-light standard for camera-bearing wearables. A dim green pulse means sensing with nothing kept, solid green means invoked and able to act, blinking red means this moment may persist. Tiered, lab-certifiable conformance.">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <meta property="og:title" content="SensorOn">
+  <meta property="og:description" content="The SensorOn Standard (SOS): an open, testable status-light standard for camera-bearing wearables. A dim green pulse means sensing with nothing kept, solid green means invoked and able to act, blinking red means this moment may persist.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --paper: #FAF9F6; --ink: #1C1C1A; --body-ink: #2A2A27; --muted: #6B6B66;
+      --hairline: #E4E2DC; --green: #157A47; --lamp: #30d158; --rec: #ff3b30;
+      --panel: #0F1210;
+      --sans: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+      --serif: 'IBM Plex Serif', Georgia, serif;
+      --mono: 'IBM Plex Mono', Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); min-height: 100svh; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+    .toprule { height: 4px; background: var(--green); }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 0 44px; }
+    .masthead { display: flex; justify-content: space-between; align-items: center; padding: 22px 0 18px 0; gap: 16px; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brandname { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
+    .brandname .on { color: var(--green); }
+    .mast-meta { font-family: var(--mono); font-size: 12.5px; color: var(--muted); letter-spacing: 0.06em; }
+    .mast-rule { height: 1px; background: var(--hairline); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; padding: 52px 0 44px 0; align-items: start; }
+    .hero h1 { margin: 0 0 18px 0; font-size: clamp(2.4rem, 5vw, 3.5rem); font-weight: 600; letter-spacing: -0.015em; line-height: 1.02; }
+    .hero h1 .on { color: var(--green); }
+    .hero .lede { margin: 0; font-family: var(--serif); font-size: 18px; line-height: 1.62; color: #55554F; max-width: 58ch; }
+    .meta-block { border-top: 2px solid var(--ink); }
+    .meta-block .row { display: flex; justify-content: space-between; align-items: center; padding: 11px 2px; border-bottom: 1px solid var(--hairline); }
+    .meta-block .k { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em; color: var(--muted); }
+    .meta-block .v { font-family: var(--mono); font-size: 11.5px; }
+    .meta-block .chip { font-weight: 600; color: var(--green); border: 1.5px solid var(--green); padding: 1px 8px; }
+
+    .panel { background: var(--panel); border-radius: 8px; padding: 40px 48px 30px 48px; }
+    .panel-caption { font-family: var(--mono); font-size: 12px; color: var(--muted); padding: 12px 2px 0 2px; }
+
+    .stage { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; }
+    #lamp { appearance: none; border: none; background: transparent; cursor: pointer; padding: 2rem; border-radius: 50%; }
+    #lamp:focus-visible { outline: 2px solid var(--lamp); outline-offset: 8px; }
+    #orb { width: clamp(100px, 24vw, 132px); height: clamp(100px, 24vw, 132px); border-radius: 50%; transition: background 0.6s ease, box-shadow 0.6s ease; display: block; }
+    body.state-off #orb { background: radial-gradient(circle at 38% 34%, #262626, #141414 70%); box-shadow: inset 0 0 0 1px #2b2b2b; }
+    body.state-ambient #orb { background: radial-gradient(circle at 50% 45%, #b7f5c9, var(--lamp) 55%, #10402a 100%); box-shadow: 0 0 24px 4px rgba(48, 209, 88, 0.28), 0 0 90px 18px rgba(48, 209, 88, 0.10); animation: breathe 4.8s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.50; } }
+    body.state-session #orb { background: radial-gradient(circle at 50% 42%, #ffffff, #a6ffc9 40%, var(--lamp) 75%, #0c4d2c 100%); box-shadow: 0 0 40px 10px rgba(48, 209, 88, 0.55), 0 0 140px 40px rgba(48, 209, 88, 0.22); opacity: 1; }
+    body.state-recording #orb { background: radial-gradient(circle at 50% 42%, #ffb3ad, var(--rec) 55%, #5c0f0a 100%); box-shadow: 0 0 36px 8px rgba(255, 59, 48, 0.55), 0 0 130px 34px rgba(255, 59, 48, 0.22); animation: blink 1s steps(1, end) infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .readout { text-align: center; min-height: 10rem; }
+    .readout .state-name { font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.35em; text-transform: uppercase; color: #8A938C; margin: 0 0 0.8rem; }
+    .facts { display: grid; grid-template-columns: auto 1fr; gap: 0.4rem 0.9rem; text-align: left; max-width: 32rem; margin: 0 auto 0.7rem; }
+    .facts .k { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: #6E766F; padding-top: 0.3rem; }
+    .facts .v { font-size: 1rem; line-height: 1.45; margin: 0; color: #E8EAE6; }
+    .readout .stamp { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; color: #6E766F; margin: 0; }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+    .controls button { appearance: none; cursor: pointer; background: transparent; color: #8A938C; border: 1px solid #2A2F2B; border-radius: 999px; font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.5rem 1rem; transition: color 0.2s, border-color 0.2s; }
+    .controls button[aria-pressed="true"] { color: #E8EAE6; border-color: #E8EAE6; }
+    .controls button:hover { color: #E8EAE6; }
+    .hint { text-align: center; font-size: 0.85rem; color: #6E766F; margin-top: 0.9rem; margin-bottom: 0; }
+
+    .layout { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 60px; padding: 52px 0 0 0; align-items: start; }
+    .toc { position: sticky; top: 26px; display: flex; flex-direction: column; border-top: 2px solid var(--ink); padding-top: 12px; }
+    .toc a { font-family: var(--mono); font-size: 12.5px; color: #55554F; text-decoration: none; padding: 7px 0; line-height: 1.35; display: flex; }
+    .toc a .tn { flex: 0 0 26px; color: var(--muted); }
+    .toc a:hover { color: var(--ink); }
+    .toc a.active { color: var(--green); font-weight: 600; }
+    .toc a.active .tn { color: var(--green); }
+
+    .spec { border-top: none; margin-top: 0; padding-top: 0; }
+    .spec h2 { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; margin: 3rem 0 0.9rem; scroll-margin-top: 28px; }
+    .spec h2:first-of-type { margin-top: 2.4rem; }
+    .spec h3 { font-size: 17px; font-weight: 600; margin: 1.9rem 0 0.5rem; }
+    .spec h2 .num, .spec h3 .num { color: var(--muted); font-family: var(--mono); font-size: 0.82em; margin-right: 0.7rem; font-weight: 500; }
+    .spec p, .spec li, .spec dd { font-family: var(--serif); line-height: 1.68; color: var(--body-ink); font-size: 16.5px; }
+    .spec .tldr { border: 1px solid var(--ink); border-radius: 2px; padding: 1.15rem 1.4rem; margin-top: 0; background: #FFFFFF; }
+    .spec .tldr p { margin: 0; font-size: 16px; }
+    .spec strong { color: var(--ink); }
+    .spec ol.reqs, .spec ul.reqs { padding-left: 1.3rem; }
+    .spec ol.reqs li, .spec ul.reqs li { margin: 0.7rem 0; }
+    .spec dl dt { font-weight: 600; font-family: var(--sans); color: var(--ink); margin-top: 1rem; font-size: 15.5px; }
+    .spec dl dd { margin: 0.3rem 0 0 0; }
+    .spec code { font-family: var(--mono); font-size: 0.84em; background: #F1EFE9; border: 1px solid var(--hairline); border-radius: 3px; padding: 0.08em 0.35em; color: var(--ink); }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 15px; border-top: 2px solid var(--ink); }
+    th, td { text-align: left; padding: 0.65rem 0.75rem 0.65rem 0; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+    th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+    td { font-family: var(--serif); color: var(--body-ink); }
+    td:first-child { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: var(--ink); }
+    .table-wrap { overflow-x: auto; }
+    .quiet { color: var(--muted); }
+    .swatch { display: inline-block; width: 13px; height: 13px; border-radius: 50%; margin-right: 9px; vertical-align: -1px; }
+    .sw-off { background: #DDDBD4; border: 1px solid #C6C3BB; }
+    .sw-ambient { background: var(--lamp); animation: breathe 4.8s ease-in-out infinite; }
+    .sw-session { background: var(--lamp); box-shadow: 0 0 6px 1px rgba(48, 209, 88, 0.55); }
+    .sw-recording { background: var(--rec); box-shadow: 0 0 6px 1px rgba(255, 59, 48, 0.4); animation: blink 1s steps(1, end) infinite; }
+    .refs { font-size: 14px; }
+    .refs li { margin: 0.45rem 0; font-family: var(--sans); color: #45453F; }
+    .refs a { color: var(--green); }
+    a { color: var(--green); }
+    a:hover { color: #0E5A33; }
+    .provisional { border: 1px solid #D9C68A; border-left-width: 1px; border-radius: 2px; padding: 0.8rem 1.1rem; margin: 1.1rem 0; background: #F8F3E4; font-size: 14.5px; color: #6A5A1E; font-family: var(--sans); line-height: 1.6; }
+    .informative { border: 1px solid #B9C6D4; border-radius: 2px; padding: 0.8rem 1.1rem; margin: 1.1rem 0; background: #EFF3F7; font-size: 14.5px; color: #3A4A5A; font-family: var(--sans); line-height: 1.6; }
+    footer { margin-top: 4rem; padding: 1.2rem 0 1.8rem 0; border-top: 1px solid var(--hairline); font-size: 0.85rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; font-family: var(--mono); }
+    @media (max-width: 1080px) {
+      .wrap { padding: 0 22px; }
+      .hero { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-top: 36px; }
+      .layout { display: block; }
+      .toc { display: none; }
+      .panel { padding: 26px 20px 20px 20px; }
+      .spec h2 { margin-top: 2.4rem; }
+    }
+  </style>
+</head>
+<body class="state-ambient">
+  <div class="toprule"></div>
+  <div class="wrap">
+    <div class="masthead">
+      <div class="brand"><svg class="logo" width="26" height="26" viewBox="0 0 140 140" aria-hidden="true"><circle cx="70" cy="70" r="62" fill="none" stroke="#1C1C1A" stroke-width="7"></circle><circle cx="70" cy="70" r="36" fill="none" stroke="#157A47" stroke-width="7" opacity="0.5"></circle><circle cx="70" cy="70" r="16" fill="#157A47"></circle></svg><span class="brandname">Sensor<span class="on">On</span></span></div>
+      <span class="mast-meta">SOS &#183; Draft 0.10.1</span>
+    </div>
+    <div class="mast-rule"></div>
+    <header class="hero">
+      <div class="hero-main">
+        <h1>Sensor<span class="on">On</span></h1>
+        <p class="lede">The SensorOn Standard (SOS): an open light language for the cameras we wear. One lamp, four states, every behavior adapted from a signal the world already reads, and every requirement written to be tested.</p>
+      </div>
+      <div class="meta-block">
+        <div class="row"><span class="k">STATUS</span><span class="v chip">DRAFT</span></div>
+        <div class="row"><span class="k">VERSION</span><span class="v">0.10.1</span></div>
+        <div class="row"><span class="k">SCOPE</span><span class="v">CAMERA-BEARING WEARABLES</span></div>
+        <div class="row"><span class="k">EDITOR</span><span class="v">Justin Tormey</span></div>
+      </div>
+    </header>
+    <div class="panel">
+      <section class="stage" aria-label="Live demo of the SensorOn light">
+      <button id="lamp" aria-label="The SensorOn light. Tap to step to the next state.">
+        <span id="orb"></span>
+      </button>
+      <div class="readout" aria-live="polite">
+        <p class="state-name" id="stateName"></p>
+        <div class="facts">
+          <span class="k">Doing</span><p class="v" id="fDoing"></p>
+          <span class="k">Keeps</span><p class="v" id="fKeeps"></p>
+          <span class="k">Can</span><p class="v" id="fCan"></p>
+        </div>
+        <p class="stamp" id="stateStamp"></p>
+      </div>
+      <div class="controls" role="group" aria-label="Set the light's state">
+        <button data-state="off">Off</button>
+        <button data-state="ambient">Ambient</button>
+        <button data-state="session">Session</button>
+        <button data-state="recording">Recording</button>
+      </div>
+      <p class="hint">Tap the light to step through the cycle: ambient, session, recording, off. The demo follows the section 6 timing rules.</p>
+    </section>
+    </div>
+    <div class="layout">
+      <nav class="toc" aria-label="Sections">
+      <a href="#sec-1"><span class="tn">1</span>Introduction</a>
+      <a href="#sec-2"><span class="tn">2</span>Scope</a>
+      <a href="#sec-3"><span class="tn">3</span>Conformance language</a>
+      <a href="#sec-4"><span class="tn">4</span>The four states</a>
+      <a href="#sec-5"><span class="tn">5</span>Definitions</a>
+      <a href="#sec-6"><span class="tn">6</span>Normative requirements</a>
+      <a href="#sec-7"><span class="tn">7</span>Conformance tiers and certification</a>
+      <a href="#sec-8"><span class="tn">8</span>Conformance testing</a>
+      <a href="#sec-9"><span class="tn">9</span>Security considerations</a>
+      <a href="#sec-10"><span class="tn">10</span>Deployment considerations</a>
+      <a href="#sec-11"><span class="tn">11</span>Adapted, not invented</a>
+      <a href="#sec-12"><span class="tn">12</span>Adoption</a>
+      <a href="#sec-13"><span class="tn">13</span>Future scope (informative)</a>
+      <a href="#sec-14"><span class="tn">14</span>Open questions (draft)</a>
+      <a href="#sec-15"><span class="tn">15</span>The wordmark and marks</a>
+      <a href="#sec-16"><span class="tn">16</span>References</a>
+      </nav>
+      <article class="spec">
+      <div class="tldr">
+        <p><strong>Summary.</strong> A camera-bearing wearable MUST carry a light that tells the viewer which of four states it is in: <strong>dark</strong> when its sensors are unpowered, a <strong>dim green pulse</strong> while it senses and keeps nothing, <strong>solid bright green</strong> when it has been invoked and can act, and <strong>blinking red</strong> when this moment may persist beyond itself. No light, no sensing. Photometry, timing, and the interlock are verifiable at any bench; the retention claims behind the green states are verifiable through Tier 2 laboratory certification (section 7).</p>
+      </div>
+
+      <h2 id="sec-1"><span class="num">1.</span>Introduction</h2>
+      <p>Camera-bearing wearables are moving into the mainstream, and their indicator lights are under measured pressure. A 2026 study of 525 bystanders and wearers found that only 41.3% of bystanders and 35.3% of wearers consider current LED indicators sufficient, with the leading failure modes being lights that are too small to notice and lights that disappear in bright environments [22]. Germany's Hamburg data-protection commissioner reached the same conclusion about a shipping product in 2026 [28], Ireland's Data Protection Commission questioned indicator adequacy as early as 2021 [27], and Pennsylvania has a pending bill requiring visible, non-disableable recording indicators on wearable recording devices [26]. Platform makers have each added tamper responses independently: Meta made camera-disable-on-LED-tamper mandatory by firmware in July 2026 [12], and Samsung announced equivalent behavior for glasses due in fall 2026 [28].</p>
+      <p>No shared specification defines what these lights mean or how to test them, and no existing convention distinguishes a device that is sensing while retaining nothing from a device that is recording. This document defines the SensorOn Standard (SOS): one indicator lamp, four states covering the sensing lifecycle, each state's behavior adapted from an indicator convention already in wide deployment, each requirement carrying measurable values, and a tiered conformance model that separates what any bench can verify from what accredited-laboratory certification verifies.</p>
+
+      <h2 id="sec-2"><span class="num">2.</span>Scope</h2>
+      <p>This specification applies to <strong>camera-bearing wearables</strong>: devices worn on the body that carry one or more image sensors, including smart glasses, camera earbuds, pendants, and body-worn cameras. On an in-scope device, the specification's state and retention rules cover all of the device's sensors, including microphones, depth and ranging sensors, motion sensors, and location.</p>
+      <p>The specification defines the behavior of one status lamp, the <strong>sensor indicator</strong>: its states, colors, intensities, timing, the retention and action rules each state asserts, the disclosure that backs those assertions, and the conformance tiers under which they are verified. It does not define data formats, network protocols, or any user interface beyond the lamp. A maker that deviates from this specification SHOULD disclose the deviation, and the reason for it, to users. The state model generalizes beyond cameras; section 13 describes the intended future scope.</p>
+
+      <h2 id="sec-3"><span class="num">3.</span>Conformance language</h2>
+      <p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 (RFC 2119, RFC 8174) [1] when, and only when, they appear in all capitals. This document uses MUST, MUST NOT, SHOULD, and MAY. A device conforms to this specification when it satisfies every MUST and MUST NOT in section 6, at the tier it declares under section 7.</p>
+
+      <h2 id="sec-4"><span class="num">4.</span>The four states</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>State</th><th>Light</th><th>The claim it makes</th><th>What persists</th><th>Adapted from</th></tr>
+          <tr><td>OFF</td><td><span class="swatch sw-off"></span>Dark</td><td>My sensors have no power.</td><td>Nothing.</td><td>The oldest convention there is: no power, no light.</td></tr>
+          <tr><td>AMBIENT</td><td><span class="swatch sw-ambient"></span>Dim green, smooth pulse, never off</td><td>I am sensing, and I keep nothing. I can only wake.</td><td>Nothing. The measurement evaporates as it is read.</td><td>The breathing standby light: a slow dim pulse has meant powered and at rest since the sleeping Mac's indicator.</td></tr>
+          <tr><td>SESSION</td><td><span class="swatch sw-session"></span>Solid, bright green</td><td>I have been invoked and I can act. Nothing of this session will outlive it.</td><td>Nothing of the session itself. Only the consequences of its actions: the switch flipped, the answer spoken.</td><td>The camera-in-use dot: solid green already means an active camera on smartphone indicators [11].</td></tr>
+          <tr><td>RECORDING</td><td><span class="swatch sw-recording"></span>Hard-blinking red</td><td>This moment may persist beyond itself. Stored or transmitted, a replay may exist later.</td><td>Reconstructive data. The moment, replayable.</td><td>The camcorder REC lamp and the broadcast tally.</td></tr>
+        </table>
+      </div>
+
+      <h2 id="sec-5"><span class="num">5.</span>Definitions</h2>
+      <dl>
+        <dt>Derived data</dt>
+        <dd>Measurements and meaning that cannot reproduce the sensed moment: scalars (a temperature, a humidity, a heart rate), counts, classifications, labels, structure. "A person is present." "That was the wake word." The term follows the data-category vocabulary of ISO/IEC 19944-1 [20]. It is used by data-path statements and audits to describe boundaries; it does not authorize retention. Green states retain nothing (6.5).</dd>
+        <dt>Reconstructive data</dt>
+        <dd>Any representation from which a substantial replay of the moment could be produced: raw or compressed audio, video, or imagery, verbatim transcripts, and high-rate traces of any sensed channel (a millisecond temperature log is a transcript of the thermal channel).</dd>
+        <dt>The stenographer's rule</dt>
+        <dd>A transcript is a recording. Full stop. Stenographers record court proceedings directly to specialized notation equipment and can read it back verbatim. A microphone or vibration sensor capable of sensing spoken language, saving what was said in text form which can then be read back later or transmitted, has recorded what it sensed.</dd>
+        <dt>Interpretation buffer</dt>
+        <dd>The transient store of raw sensor input a device holds in order to interpret it. A wake-word detector holds the last few seconds of audio to recognize its phrase; a gesture recognizer holds frames. Its handling is specified in 6.5.</dd>
+        <dt>Persistence</dt>
+        <dd>Reconstructive data existing beyond the live moment: written to durable storage on any medium, or transmitted off the device.</dd>
+        <dt>The replay test</dt>
+        <dd>Could any party, at any later time, replay a substantial depiction of this moment? If yes, the device is RECORDING.</dd>
+      </dl>
+
+      <h2 id="sec-6"><span class="num">6.</span>Normative requirements</h2>
+
+      <h3><span class="num">6.1</span>Interlock</h3>
+      <ul class="reqs">
+        <li>The sensor indicator MUST be powered from the same rail as the sensor array, such that no sensor can draw current while the indicator is unpowered. Software MUST NOT be able to extinguish the indicator while any sensor is live. (This is the power-rail design recommended by the iSeeYou researchers after they defeated a first-generation firmware-mediated interlock from an unprivileged application [21]; see section 9.)</li>
+      </ul>
+
+      <h3><span class="num">6.2</span>Photometry and visibility</h3>
+      <ul class="reqs">
+        <li><strong>Aperture.</strong> The indicator's emitting aperture MUST be no smaller than <code>2.0 mm</code> in its smallest dimension. (Press reporting of Meta's hardware revisions describes the capture LED growing from 1 mm to 2 mm between generations for daylight visibility; the floor adopts the corrected size and is marked provisional in section 8.)</li>
+        <li><strong>Intensity.</strong> Measured as averaged LED intensity on the indicator's axis per CIE 127 Condition A [8], SESSION MUST emit <code>&#8805; 50 mcd</code>, and RECORDING MUST emit <code>&#8805; 50 mcd</code> during its on phase. Devices intended for outdoor use SHOULD reach <code>200 mcd</code>. (50 to 200 mcd is the established engineering band for sunlight-readable indicators [9].)</li>
+        <li><strong>State ratios.</strong> AMBIENT's peak intensity MUST be between <code>20%</code> and <code>50%</code> of SESSION's steady intensity, so that the brighter lamp always indicates the more capable state. AMBIENT's trough MUST be <code>&#8805; 25%</code> of AMBIENT's own peak: in AMBIENT the lamp is never off.</li>
+        <li><strong>Adaptive dimming.</strong> The device MAY scale all intensities with ambient illuminance (office is roughly 300 to 500 lx, overcast daylight 1,000 lx, direct sun 100,000 lx). At no ambient level MUST the luminance contrast between the lit indicator and the device surface immediately around it fall below <code>3:1</code>, the floor for basic indicator visibility in HMI practice [10].</li>
+        <li><strong>Chromaticity.</strong> Measured per CIE 127 geometry [8], SensorOn green MUST fall within the aviation-green region of 14 CFR 25.1397 [6]: <code>x &#8804; 0.440 &#8722; 0.320y</code>, <code>x &#8804; y &#8722; 0.170</code>, <code>y &#8805; 0.390 &#8722; 0.170x</code>. SensorOn red MUST fall within the SAE J578 signal-red region [7]: <code>y &#8804; 0.335</code>, <code>x + y &#8805; 0.980</code>.</li>
+        <li><strong>Distance.</strong> At 3 m a 2 mm lamp subtends about 2.3 arcminutes, below the 16 to 22 arcminutes ISO 9241-303 associates with reliable hue identification [13]. The waveform, not the hue, is therefore the primary identification channel (6.3): the state MUST be identifiable at <code>3 m</code> under <code>500 lx</code> from waveform alone.</li>
+      </ul>
+
+      <h3><span class="num">6.3</span>Timing</h3>
+      <ul class="reqs">
+        <li><strong>Global ceiling.</strong> The indicator MUST NOT produce more than <code>2</code> luminance flashes per second in any state. WCAG 2.3.1 sets the photosensitive-safety limit at 3 flashes per second [2]; the 2-per-second ceiling provides 33% margin, and the 5 to 30 Hz band associated with elevated seizure risk [3] is never approached.</li>
+        <li><strong>AMBIENT.</strong> Any periodic sequence MAY be used, including patterns paced to the wearer's heartbeat or breathing. The sequence MUST satisfy: cycle period between <code>2 s</code> and <code>6 s</code> (maritime flashing-class rhythms begin at 2 s cycles [4]); instantaneous intensity <code>&#8805; 25%</code> of the state's peak at all times, so that a standard 2-second glance [5] always observes a lit lamp; and monotonic rise and fall times of <code>&#8805; 300 ms</code> each.</li>
+        <li><strong>SESSION.</strong> Steady. Luminance MUST NOT vary by more than <code>10%</code> within any 1-second window, which is below the WCAG definition of a flash [2].</li>
+        <li><strong>RECORDING.</strong> A square blink at <code>1.0 to 2.0 Hz</code> with a duty cycle of <code>40% to 60%</code>, transitions completing in <code>&#8804; 50 ms</code>, and the off phase reaching full extinction. Red at 2 Hz measured highest in NASA conspicuity testing, above a steady light [14]; fire-alarm visual appliances use the same 1 to 2 Hz band [15].</li>
+        <li><strong>Waveform redundancy.</strong> The three lit states MUST remain distinguishable with all hue information removed: AMBIENT never extinguishes and has no hard edges, SESSION never modulates, RECORDING extinguishes with hard edges. Approximately 1 in 12 men cannot rely on the red/green distinction [16]; per WCAG 1.4.1 and ISO 9241-112, color MUST NOT be the only channel [17].</li>
+      </ul>
+
+      <h3><span class="num">6.4</span>Color discipline</h3>
+      <ul class="reqs">
+        <li>The sensor indicator MUST emit only the two chromaticities defined in 6.2, plus dark. It MUST NOT display any other hue in any state.</li>
+        <li>The indicator MUST NOT be used to encode user status, mood, notifications, brand identity, or anything else. A second, physically separate lamp MAY exist for other purposes, provided it cannot be confused with the sensor indicator in position or color.</li>
+        <li><strong>Green and red are reserved.</strong> Green means sensing without keeping; red means persistence. A SensorOn device MUST NOT reassign them. Industrial color-coding practice has assigned red to the highest-priority state since IEC 60073 [18].</li>
+      </ul>
+
+      <h3><span class="num">6.5</span>State capabilities: what each state is allowed to do</h3>
+      <ul class="reqs">
+        <li><strong>AMBIENT is sensing without consequence.</strong> In AMBIENT the device senses, evaluates, and forgets. It MUST NOT retain anything it senses, in any form. It MUST NOT transmit anything it senses. The only action it MAY take is changing its own state: waking on a wake phrase, a QR code, a gesture, or a pre-defined sensor threshold. The purpose of the sensing is out of scope; every AMBIENT device asserts the same retention behavior regardless of what it is watching for.</li>
+        <li><strong>SESSION is sensing with agency, and it is temporal.</strong> Once invoked, whether by its user or by one of its own pre-defined triggers, the device MAY sense at higher fidelity and MAY act: answer, control, or deliver content on the user's explicit direction. All processing of sensed data during a session occurs on the device. The device MUST NOT transmit anything it senses off the device, and MUST NOT persist any portion of a session: not audio, not a transcript, not readings, not a log of the exchange. The consequences of a session's actions MAY persist (the switch may be turned from off to on a lamp; the answer was spoken), because an effect on the world is not a replay of the moment; content the user explicitly composes and directs the device to deliver is such a consequence. If any portion of a session is saved, or persists beyond the session in any form, the device MUST display RECORDING, not SESSION, for that period. The solid bright lamp indicates that the device is currently able to act.</li>
+        <li><strong>Interpretation buffers do not persist.</strong> AMBIENT and SESSION MAY hold an interpretation buffer of reconstructive data, PROVIDED all of the following hold: it is bounded at <code>10 s</code> or the minimum the interpretation requires, whichever is shorter (provisional value); its contents are destroyed or overwritten as interpretation completes; and no path exists, in hardware or software, to promote its contents to persistence or to transmit them. A buffer that can be promoted fails the replay test for every moment it holds: pre-event capture is RECORDING for as long as it is armed.</li>
+        <li><strong>RECORDING is persistence.</strong> The device MUST display RECORDING whenever the replay test (section 5) answers yes: reconstructive data written to durable storage on any medium, or transmitted off the device. The indicator MUST enter RECORDING no later than the moment persistence begins. Because green states keep nothing, RECORDING is the only state in which anything the sensors read persists, in any form, at any rate.</li>
+      </ul>
+
+      <h3><span class="num">6.6</span>Tamper</h3>
+      <ul class="reqs">
+        <li>A covered, removed, or damaged indicator MUST power down the entire sensor array until the indicator is restored and verified. Meta's glasses implement this behavior, disabling the camera when the capture LED is occluded or modified and verifying the lamp's emission with the camera itself; Meta made it mandatory by firmware in July 2026 [12]. A conforming device MAY use that optical self-check method.</li>
+      </ul>
+
+      <h3><span class="num">6.7</span>Disclosure: the data-path statement</h3>
+      <ul class="reqs">
+        <li>The maker MUST publish a <strong>data-path statement</strong> for each device model: a machine-readable, versioned, cryptographically signed document that maps each state to what is retained, what is transmitted and where, and what actions the device can take; names the firmware versions it covers; states the interpretation-buffer bound; and declares the device's conformance tier (section 7).</li>
+        <li>Any claim in the data-path statement that an output is derived data MUST be supported by a published invertibility analysis. Representations assumed to be image-free have been inverted before: event-camera streams have been reconstructed into grayscale video [25], and an ambient light sensor has been used to image hand gestures with no camera at all [24].</li>
+        <li>The device or its packaging MUST carry a QR code or URL that resolves to the current data-path statement, and, for certified devices, to the registry entry (section 7). This is the disclosure mechanism the FCC's U.S. Cyber Trust Mark program uses: a mark paired with a QR code that links to a public registry of per-product security information [29].</li>
+      </ul>
+
+      <h2 id="sec-7"><span class="num">7.</span>Conformance tiers and certification</h2>
+      <p>The requirements in section 6 divide into two classes. Photometry, timing, color, the interlock, and tamper behavior (6.1 through 6.4, 6.6) are observable properties: any bench with the section 8 equipment can verify them. The retention and capability rules (6.5) are claims about internal behavior: verifying them requires storage forensics, traffic analysis, and firmware review. The tier structure makes that distinction explicit rather than leaving it implied.</p>
+      <ul class="reqs">
+        <li><strong>Tier 1, Interlocked.</strong> The device passes section 8 items 1 through 4 and 7 through 8 at any competent bench. Tier 1 verifies the lamp itself: its optics, its timing, its interlock, its tamper response. A Tier 1 device's green states assert the 6.5 retention rules but have not had them independently audited, and the data-path statement MUST say so.</li>
+        <li><strong>Tier 2, Certified.</strong> An accredited, independent laboratory has verified the full section 8 procedure, including the retention, transmission, and buffer items (5 and 6), against a specific firmware version. Certification binds to that firmware version in a public registry entry containing the signed data-path statement and test report summary. A change to any firmware component that touches sensing, retention, transmission, or the indicator MUST be re-certified before the device may continue to claim Tier 2.</li>
+        <li>The certification structure follows the two-role model of the FCC's U.S. Cyber Trust Mark program: accredited laboratories perform the technical testing, and a separate administrator authorizes use of the mark and maintains the registry [29]. No SensorOn certification body exists today; section 10 states the current status.</li>
+      </ul>
+
+      <h2 id="sec-8"><span class="num">8.</span>Conformance testing</h2>
+      <p>Bench equipment: a colorimeter and photometer per CIE 127 Condition A geometry (1 cm&#178; aperture, on-axis, 100 mm) [8], a photodiode with an oscilloscope or a high-speed camera, a lux meter, and a network capture on the device's uplink. The procedure:</p>
+      <ol class="reqs">
+        <li><strong>Chromaticity.</strong> In each lit state, measured chromaticity falls inside the 6.2 boundaries.</li>
+        <li><strong>Intensity.</strong> SESSION measures &#8805; 50 mcd; AMBIENT's peak measures 20 to 50% of SESSION; AMBIENT's trough measures &#8805; 25% of AMBIENT's peak. RECORDING's effective intensity, computed by the Blondel-Rey method with <code>&#945; = 0.2 s</code> [19], measures &#8805; 50 mcd.</li>
+        <li><strong>Timing.</strong> A 60-second photodiode log of each state shows: AMBIENT period 2 to 6 s with rise and fall &#8805; 300 ms and no sample below 25% of peak; SESSION variation &#8804; 10% per second; RECORDING at 1 to 2 Hz, 40 to 60% duty, off-phase at extinction; and no state anywhere produces more than 2 flashes per second.</li>
+        <li><strong>Interlock.</strong> With the indicator circuit opened, no sensor on the device can draw current. With any sensor active, the indicator is emitting.</li>
+        <li><strong>Data path</strong> <span class="quiet">(Tier 2)</span><strong>.</strong> In AMBIENT and SESSION, a 24-hour capture of the device's traffic contains no sensed payloads of any kind, and storage inspection finds no artifact of anything sensed; after a session ends, storage inspection finds no artifact of it. Any observed persistence coincides with the indicator in RECORDING. The device's behavior matches its published data-path statement.</li>
+        <li><strong>Buffers</strong> <span class="quiet">(Tier 2)</span><strong>.</strong> The interpretation buffer's bound is stated in the data-path statement and measures &#8804; 10 s; a forensic read immediately after a green-state interpretation completes recovers no buffer contents; no code or hardware path promotes buffer contents to storage or the uplink. If the device offers pre-event capture, the indicator shows RECORDING whenever that capture is armed.</li>
+        <li><strong>Tamper.</strong> Covering the indicator for 10 seconds powers down the sensor array, and it stays down until the indicator is uncovered and verified.</li>
+        <li><strong>Glance test.</strong> An observer with normal acuity at 3 m under 500 lx, viewing through a neutral filter that removes hue, correctly names the state within one 2-second glance, for all three lit states.</li>
+      </ol>
+      <div class="provisional"><strong>Provisional values.</strong> The intensity floor (50 mcd), state ratios (20 to 50%, 25%), the AMBIENT edge time (300 ms), the 2.0 mm aperture floor, and the 10 s interpretation-buffer bound are engineering-derived from the cited sources and reported hardware history rather than lifted verbatim from a single standard, and are expected to be tuned against real hardware. The chromaticity boundaries, flash ceilings, duty cycles, and measurement methods are lifted directly from the cited standards.</div>
+
+      <h2 id="sec-9"><span class="num">9.</span>Security considerations</h2>
+      <p><strong>What the lamp proves, and what it claims.</strong> The interlock (6.1) proves a physical fact: a sensor is drawing power. The photometric and timing requirements (6.2, 6.3) prove the lamp behaves as specified. The state semantics (6.5) are claims about internal data handling that no light can prove by itself. This specification addresses that gap in three ways: the tier structure (section 7) states which claims have been independently audited, the data-path statement (6.7) turns the claims into signed, versioned, falsifiable representations, and Tier 2 certification pins the audited behavior to a firmware version.</p>
+      <p><strong>Threat model.</strong> Against an honest maker with defects, Tier 2 laboratory testing (section 8, items 5 and 6) is designed to find retention and transmission that the design did not intend. Against an adversarial maker, protection comes from the signed data-path statement and certification record: a false green state becomes a documented misrepresentation, attributable and actionable, rather than an unverifiable claim. Against third-party modification of the device, 6.6 requires that a covered, removed, or damaged lamp power down the sensor array. Against firmware change after certification, section 7 requires re-certification, and the registry entry names the certified firmware version so a mismatch is detectable.</p>
+      <p><strong>Interlock history.</strong> The iSeeYou attack (USENIX Security 2014) disabled the indicator LED of first-generation Apple iSight webcams from an unprivileged application, because that interlock was mediated by reprogrammable firmware [21]. The authors' recommended remedy was to tie the indicator to the sensor's power supply in hardware. Requirement 6.1 adopts that remedy as a mandate; the attack is the reason software never appears in the 6.1 chain.</p>
+      <p><strong>Reconstruction risk.</strong> The derived-versus-reconstructive boundary erodes as inversion techniques improve. Event-camera streams, long treated as image-free, are reconstructable into grayscale video [25]; an off-the-shelf tablet's ambient light sensor has been used to image hand gestures with no camera involved [24]. This is why 6.7 requires an invertibility analysis behind every derived-data claim, and why the analysis must be revisited as the state of the art moves. On-sensor inference that emits only metadata is commercially deployed (Sony's IMX500 runs in 500 convenience stores emitting, per Sony, no image data that could identify individuals [30]), so the AMBIENT architecture is buildable; the burden this specification adds is proving the outputs stay derived.</p>
+      <p><strong>Limits of indicator lights.</strong> The empirical record shows current indicators underperform: majorities of surveyed bystanders and wearers find existing LEDs insufficient, citing size, daylight visibility, unfamiliar meaning, and obstructability [22][23]. Each cited failure mode maps to a requirement in this specification (aperture and intensity floors for size and daylight; one convention for meaning; tamper power-down for obstruction; waveform redundancy for color vision), and the glance test (8.8) measures the result. This specification raises the measurable floor of indicator design. It does not by itself guarantee that any bystander notices, understands, or trusts the signal.</p>
+
+      <h2 id="sec-10"><span class="num">10.</span>Deployment considerations</h2>
+      <p><strong>Voluntary signals without enforcement have failed before.</strong> P3P was retired by the W3C in 2018 after major-browser support had already ended [31]; Do Not Track was never honored by the largest sites, Yahoo and Twitter adopted and then abandoned it, and the W3C closed the Tracking Protection Working Group in January 2019 citing insufficient deployment [31]. Cranor's analysis of these mechanisms concludes they are necessary but not sufficient without incentives and enforcement [32]. This specification's response is structural: the certification mark and registry (section 7) exist to supply the adoption incentive, and the signed data-path statement (6.7) exists to make a false claim legally actionable rather than unenforceable.</p>
+      <p><strong>The certification program is prospective.</strong> No SensorOn certification body, accredited laboratory roster, or registry exists today. The model it follows, the FCC's U.S. Cyber Trust Mark, is itself still reaching steady state: its lead administrator role changed hands in 2025-2026 and its administrator roster was still being filled as of August 2026 [29]. Until a program exists, Tier 2 is a specification of what certification must verify, not a service a maker can buy.</p>
+      <p><strong>Regulatory alignment.</strong> Pennsylvania HB 2603 (2025-2026 session) would require a visible, non-covered indicator on wearable recording devices, with civil penalties for retailers and manufacturers and criminal penalties for individuals who disable indicators; as of August 2026 it is pending in committee [26]. The requirements in sections 6.1, 6.2, and 6.6 are written so that a bill of this shape can cite measurable thresholds instead of the single word "visible." GDPR Article 5(1)(c) (data minimisation) and Article 25 (data protection by design and by default) [33] describe in law the behavior the AMBIENT and SESSION states describe in light.</p>
+
+      <h2 id="sec-11"><span class="num">11.</span>Adapted, not invented</h2>
+      <p>Broadcast produced two lamp conventions without a standards body: the ON AIR lamp over the studio door, and the tally light on the live camera. Consumer video inherited the blinking red REC lamp, which also became convention without ever being standardized. Sleeping laptops taught the breathing standby pulse. Phones later added the green and orange sensor dots. None of this was coordinated. The pieces of the language exist; they have not previously been assembled into one specification with measurable requirements.</p>
+      <p>Nobody made the blinking red light on a 1980s camcorder a standard. Somebody should make <em>I'm sensing</em> one.</p>
+
+      <h2 id="sec-12"><span class="num">12.</span>Adoption</h2>
+      <p>The SensorOn Standard is free to implement. There is no membership or license fee. To adopt it: wire the lamp to the sensor rail (6.1), implement the four states (6.2 through 6.5), publish the signed data-path statement with its QR pointer (6.7), declare your tier (7), and verify with the section 8 procedures. Tier 2 certification becomes available when a certification program exists (section 10).</p>
+      <p>The specification is developed in public at <a href="https://github.com/justintormey/sensoron">github.com/justintormey/sensoron</a>. Errata, proposals, and the section 14 open questions are tracked there as issues; changes arrive as pull requests and are decided by the editor. The specification text is licensed CC BY 4.0; the wordmark and marks are governed by section 15.</p>
+
+      <h2 id="sec-13"><span class="num">13.</span>Future scope <span class="quiet">(informative)</span></h2>
+      <p>The state machine is not camera-specific, and future revisions are expected to extend scope to other sensing devices, worn or installed: microphones, radar and presence sensors, environmental and chemical sensors. The lifecycle reads the same on the simplest hardware. A temperature sensor in AMBIENT pulses green, sampling once per minute, awaiting a pre-defined threshold; when a reading crosses it, the device enters SESSION, solid green, sampling once per millisecond, still keeping nothing; when a recording is triggered, the indicator blinks red while readings are captured or transmitted; then it returns to AMBIENT. Every state change is visible to anyone present, on a device with no camera at all.</p>
+
+      <h2 id="sec-14"><span class="num">14.</span>Open questions <span class="quiet">(draft)</span></h2>
+      <ol class="reqs">
+        <li>The invertibility analysis (6.7) needs a normative test methodology: what demonstration suffices to call a representation non-invertible, and how often must the analysis be renewed as reconstruction techniques improve?</li>
+        <li>Phones already taught an orange dot to mean microphone only. Does SensorOn adopt amber as an audio-only modifier on AMBIENT and SESSION? Until resolved, the closed color set in 6.4 governs.</li>
+        <li>Light-only signals fail for bystanders who cannot see them and in daylight that washes them out. What is the companion channel?</li>
+        <li>The provisional photometry values in section 8 need validation against real hardware across the full 300 to 100,000 lx range, and the 8.8 glance test needs a human-subjects study.</li>
+        <li>Who runs the certification program: an existing administrator (the Cyber Trust Mark's structure admits new device categories), a new body, or a self-declaration regime with third-party audit rights?</li>
+      </ol>
+
+      <h2 id="sec-15"><span class="num">15.</span>The wordmark and marks</h2>
+      <p>The standard's identity consists of a wordmark, a logo, and an adopter mark. This section defines their construction and permitted use.</p>
+
+      <h3><span class="num">15.1</span>Wordmark</h3>
+      <div style="background: #FFFFFF; border: 1px solid var(--hairline); padding: 34px 0; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
+        <span style="font-family: var(--sans); font-size: 44px; font-weight: 600; letter-spacing: -0.015em; color: var(--ink);">Sensor<span style="color: var(--green);">On</span></span>
+      </div>
+      <p>The wordmark is the name set in IBM Plex Sans SemiBold with tracking of -1.5% of the point size: one word, two capitals, with "On" in Standard Green on light grounds and Lamp Green on dark grounds. The name MUST NOT be set in all capitals, hyphenated, or split into two words. In running text, the first mention is "the SensorOn Standard (SOS)"; below 16 px, the acronym SOS replaces the wordmark. Clearspace on all sides equals the cap height of the S at the set size, and one-color settings render the whole wordmark in a single color.</p>
+
+      <h3><span class="num">15.2</span>Logo</h3>
+      <div style="background: #FFFFFF; border: 1px solid var(--hairline); padding: 26px 0; display: flex; align-items: center; justify-content: center; gap: 44px; margin: 1rem 0;">
+        <svg width="96" height="96" viewBox="0 0 140 140" aria-label="The Pulse logo">
+          <circle cx="70" cy="70" r="62" fill="none" stroke="#1C1C1A" stroke-width="3"></circle>
+          <circle cx="70" cy="70" r="44" fill="none" stroke="#157A47" stroke-width="2.5" opacity="0.35"></circle>
+          <circle cx="70" cy="70" r="30" fill="none" stroke="#157A47" stroke-width="3.5" opacity="0.6"></circle>
+          <circle cx="70" cy="70" r="15" fill="#157A47"></circle>
+        </svg>
+        <svg width="28" height="28" viewBox="0 0 140 140" aria-label="The Pulse logo at small size">
+          <circle cx="70" cy="70" r="62" fill="none" stroke="#1C1C1A" stroke-width="6"></circle>
+          <circle cx="70" cy="70" r="34" fill="none" stroke="#157A47" stroke-width="6" opacity="0.55"></circle>
+          <circle cx="70" cy="70" r="15" fill="#157A47"></circle>
+        </svg>
+        <svg width="28" height="28" viewBox="0 0 140 140" aria-label="The Pulse logo in one color">
+          <circle cx="70" cy="70" r="62" fill="none" stroke="#1C1C1A" stroke-width="6"></circle>
+          <circle cx="70" cy="70" r="34" fill="none" stroke="#1C1C1A" stroke-width="6" opacity="0.5"></circle>
+          <circle cx="70" cy="70" r="15" fill="#1C1C1A"></circle>
+        </svg>
+      </div>
+      <p>The logo is the Pulse: the lamp drawn mid-breath, a dot inside its own rings within a keyline circle, representing the AMBIENT state's never-extinguished pulse. It identifies the standard itself and MAY appear wherever the standard is referenced. At small sizes one ring is dropped; the dot and the keyline remain.</p>
+
+      <h3><span class="num">15.3</span>Adopter mark</h3>
+      <div style="background: #FFFFFF; border: 1px solid var(--hairline); padding: 26px 0; display: flex; align-items: center; justify-content: center; gap: 44px; margin: 1rem 0;">
+        <svg width="104" height="112" viewBox="0 0 140 150" aria-label="The adopter mark">
+          <rect x="10" y="10" width="120" height="130" rx="14" fill="none" stroke="#1C1C1A" stroke-width="3"></rect>
+          <circle cx="70" cy="48" r="19" fill="none" stroke="#157A47" stroke-width="3" opacity="0.5"></circle>
+          <circle cx="70" cy="48" r="9" fill="#157A47"></circle>
+          <line x1="26" y1="78" x2="114" y2="78" stroke="#1C1C1A" stroke-width="2"></line>
+          <text x="70" y="106" text-anchor="middle" font-family="IBM Plex Sans, Helvetica, sans-serif" font-weight="700" font-size="24" letter-spacing="5" fill="#1C1C1A">SOS</text>
+          <text x="72" y="126" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="9" letter-spacing="4" fill="#6B6B66">STANDARD</text>
+        </svg>
+        <svg width="30" height="30" viewBox="0 0 140 140" aria-label="The adopter mark at 10 mm">
+          <rect x="10" y="10" width="120" height="120" rx="14" fill="none" stroke="#1C1C1A" stroke-width="7"></rect>
+          <circle cx="70" cy="70" r="34" fill="none" stroke="#1C1C1A" stroke-width="8"></circle>
+          <circle cx="70" cy="70" r="13" fill="#1C1C1A"></circle>
+        </svg>
+      </div>
+      <p>The adopter mark is a rounded-square badge in the compliance-mark lineage: the lamp glyph above a rule, the letters SOS below it, and the subtext STANDARD. It is for the devices, packaging, and documentation of products that implement this specification. The subtext CERTIFIED is reserved: it MUST NOT be used before a certification program exists (section 10), and then only by devices holding a current Tier 2 registry entry (section 7). At 10 mm and below, the badge reduces to the rounded square, the ring, and the dot. The badge MUST remain legible in one color and reversed.</p>
+
+      <h3><span class="num">15.4</span>Identity colors</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Color</th><th></th><th>Value</th><th>Use</th></tr>
+          <tr><td>Ink</td><td><span class="swatch" style="background: #1C1C1A;"></span></td><td>#1C1C1A</td><td>"Sensor", text, keylines.</td></tr>
+          <tr><td>Standard Green</td><td><span class="swatch" style="background: #157A47;"></span></td><td>#157A47</td><td>"On" and identity accents on light grounds.</td></tr>
+          <tr><td>Lamp Green</td><td><span class="swatch" style="background: #30d158;"></span></td><td>#30D158</td><td>The lamp itself and "On" on dark grounds. Chromaticity on devices is normative (6.2).</td></tr>
+          <tr><td>Paper</td><td><span class="swatch" style="background: #FAF9F6; border: 1px solid #E4E2DC;"></span></td><td>#FAF9F6</td><td>Grounds; the reversed wordmark and marks.</td></tr>
+        </table>
+      </div>
+      <p>Green is reserved for the lamp element and the wordmark's "On". Red is not an identity color: it belongs to the RECORDING state (6.4) and MUST NOT appear in the wordmark, the logo, or the adopter mark.</p>
+
+      <h2 id="sec-16"><span class="num">16.</span>References</h2>
+      <ol class="refs">
+        <li>[1] IETF BCP 14: <a href="https://www.rfc-editor.org/rfc/rfc2119">RFC 2119</a> and <a href="https://www.rfc-editor.org/rfc/rfc8174">RFC 8174</a></li>
+        <li>[2] W3C WCAG 2.1 SC 2.3.1, <a href="https://w3c.github.io/wcag21/understanding/three-flashes-or-below-threshold.html">Three Flashes or Below Threshold</a></li>
+        <li>[3] <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Seizure_disorders">MDN, Web accessibility for seizures</a> (5 to 30 Hz photosensitive band)</li>
+        <li>[4] IALA Recommendation E-110, <a href="https://www.iala.int/content/uploads/2017/03/E-110-Ed.4-Rhythmic-Characters-of-Lights-on-Aids-to-Navigation_16Dec2016.pdf">Rhythmic Characters of Lights on Aids to Navigation</a></li>
+        <li>[5] NHTSA, <a href="https://www.federalregister.gov/documents/2013/04/26/2013-09883/visual-manual-nhtsa-driver-distraction-guidelines-for-in-vehicle-electronic-devices">Visual-Manual Driver Distraction Guidelines</a>; <a href="https://www.nhtsa.gov/sites/nhtsa.gov/files/810594.pdf">Klauer et al. 2006</a></li>
+        <li>[6] 14 CFR 25.1397, <a href="https://www.law.cornell.edu/cfr/text/14/25.1397">Color specifications (aviation green)</a></li>
+        <li>[7] SAE J578, <a href="https://blog.ansi.org/ansi/sae-j-578-2020-color-lighting-motor-vehicles/">Color Specification (signal red)</a></li>
+        <li>[8] CIE 127:2007, <a href="https://www.cie.co.at/publications/measurement-leds">Measurement of LEDs</a></li>
+        <li>[9] <a href="https://www.aviationtoday.com/2004/11/01/system-design-the-struggle-for-sunlight-readability/">The Struggle for Sunlight Readability</a> (50 to 200 mcd daylight band)</li>
+        <li>[10] FAA, <a href="https://www.faa.gov/data_research/research/med_humanfacs/oamtechreports/media/202507.pdf">flight-deck legibility research</a> (3:1 minimum contrast)</li>
+        <li>[11] Apple, <a href="https://support.apple.com/en-us/108331">About the orange and green indicators</a></li>
+        <li>[12] Meta, <a href="https://about.fb.com/news/2026/07/metas-ai-glasses-your-questions-answered/">Meta's AI Glasses: Your Questions Answered</a> (July 2026, mandatory LED-tamper camera disable); <a href="https://patents.justia.com/patent/12363403">US patent 12,363,403</a></li>
+        <li>[13] ISO 9241-303, <a href="https://www.iso.org/standard/57992.html">Requirements for electronic visual displays</a></li>
+        <li>[14] NASA TN D-7960, <a href="https://ntrs.nasa.gov/api/citations/19760005639/downloads/19760005639.pdf">Conspicuity of Target Lights</a></li>
+        <li>[15] NFPA 72 / ADA visual notification appliances; UL 1971</li>
+        <li>[16] Birch 2012, <a href="https://pubmed.ncbi.nlm.nih.gov/22472762/">Worldwide prevalence of red-green color deficiency</a>, JOSA A 29(3)</li>
+        <li>[17] W3C WCAG 2.1 SC 1.4.1, <a href="https://w3c.github.io/wcag21/understanding/use-of-color.html">Use of Color</a>; ISO 9241-112, <a href="https://www.iso.org/standard/87518.html">Principles for the presentation of information</a></li>
+        <li>[18] IEC 60073:2002, <a href="https://standards.globalspec.com/std/847047/iec-60073">Coding principles for indicators and actuators</a> (secondary-sourced)</li>
+        <li>[19] NIST, <a href="https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=841704">Physical Measurement of Flashing Lights</a> (Blondel-Rey, &#945; = 0.2 s)</li>
+        <li>[20] ISO/IEC 19944-1:2020, <a href="https://www.iso.org/standard/79573.html">Data flow, data categories and data use, Part 1</a></li>
+        <li>[21] Brocker, M. and Checkoway, S., <a href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-brocker.pdf">iSeeYou: Disabling the MacBook Webcam Indicator LED</a>, 23rd USENIX Security Symposium, 2014, pp. 337-352</li>
+        <li>[22] Wang, X., Peng, K., Yi, X., and Li, H., <a href="https://doi.org/10.1145/3772318.3791848">Mind the Gap: Mapping Wearer-Bystander Privacy Tensions and Context-Adaptive Pathways for Camera Glasses</a>, CHI 2026 (<a href="https://arxiv.org/abs/2603.04930">preprint</a>)</li>
+        <li>[23] Bhardwaj, D., Ponticello, A., Tomar, S., Dabrowski, A., and Krombholz, K., <a href="https://dl.acm.org/doi/10.1145/3613904.3642242">In Focus, Out of Privacy: The Wearer's Perspective on the Privacy Dilemma of Camera Glasses</a>, CHI 2024</li>
+        <li>[24] Liu, Y., Wornell, G. W., Freeman, W. T., and Durand, F., <a href="https://doi.org/10.1126/sciadv.adj3608">Imaging privacy threats from an ambient light sensor</a>, Science Advances 10(2), 2024</li>
+        <li>[25] Rebecq, H., Ranftl, R., Koltun, V., and Scaramuzza, D., <a href="https://doi.org/10.1109/TPAMI.2019.2963386">High Speed and High Dynamic Range Video with an Event Camera</a>, IEEE TPAMI 43(6), 2021; Du, B. et al., <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8272045/">Event Encryption for Neuromorphic Vision Sensors</a>, Sensors 21(13), 2021</li>
+        <li>[26] Pennsylvania House Bill 2603, 2025-2026 Regular Session, <a href="https://www.palegis.us/legislation/bills/2025/hb2603">Requiring Visual Indicators for Smart Glasses</a> (pending in committee as of August 2026)</li>
+        <li>[27] Data Protection Commission (Ireland), <a href="https://www.dataprotection.ie/en/news-media/latest-news/data-protection-commission-statement-concerning-facebook-view-glasses">Statement concerning Facebook View glasses</a>, 17 September 2021</li>
+        <li>[28] Hamburg Commissioner for Data Protection (T. Fuchs), <a href="https://www.presseportal.de/pm/7169/6325312">press statement</a>, July 2026 (indicator not noticeable in daily life); Samsung Intelligent Eyewear reveal with LED-tamper camera disable, announced 22 July 2026 for fall 2026</li>
+        <li>[29] FCC, <a href="https://www.fcc.gov/CyberTrustMark">U.S. Cyber Trust Mark</a>; <a href="https://docs.fcc.gov/public/attachments/DA-26-18A1.pdf">Public Notice DA-26-18</a> (program status: lead administrator transitioned to ioXt Alliance April 2026; roster still forming as of August 2026)</li>
+        <li>[30] Sony Semiconductor Solutions, <a href="https://www.sony-semicon.com/en/news/2024/2024042401.html">Edge AI-Driven Vision Detection Solution Introduced at 500 Convenience Store Locations</a>, 24 April 2024</li>
+        <li>[31] W3C, <a href="https://www.w3.org/TR/P3P11/">P3P 1.1</a> (retired 30 August 2018); <a href="https://www.w3.org/2011/tracking-protection/">Tracking Protection Working Group</a> (closed 17 January 2019)</li>
+        <li>[32] Cranor, L. F., <a href="https://scholar.law.colorado.edu/ctlj/vol10/iss2/7/">Necessary But Not Sufficient: Standardized Mechanisms for Privacy Notice and Choice</a>, J. on Telecomm. and High Tech. L. 10, 273 (2012)</li>
+        <li>[33] Regulation (EU) 2016/679 (GDPR), <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng">Art. 5(1)(c) and Art. 25</a></li>
+      </ol>
+    </article>
+    </div>
+    <footer>
+      <span>SensorOn Standard (SOS) · Draft 0.10.1</span>
+      <span>an open proposal by Justin Tormey</span>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      const STATES = {
+        off: {
+          name: 'Off',
+          doing: 'Nothing. Its sensors have no power.',
+          keeps: 'Nothing.',
+          can: 'Nothing.',
+          stamp: 'spec: dark'
+        },
+        ambient: {
+          name: 'Ambient',
+          doing: 'Sensing the room, quietly.',
+          keeps: 'Nothing. It senses and forgets.',
+          can: 'Wake itself up. That\'s all.',
+          stamp: 'spec: breathes every 4.8 s, never fully off'
+        },
+        session: {
+          name: 'Session',
+          doing: 'Working: listening, watching, answering.',
+          keeps: 'Nothing. When this session ends, every trace of it is gone.',
+          can: 'Act on your behalf: answer a question, flip a switch, send a message.',
+          stamp: 'spec: steady, no flicker'
+        },
+        recording: {
+          name: 'Recording',
+          doing: 'Capturing this moment.',
+          keeps: 'The moment itself. What is happening right now can be played back later.',
+          can: 'Store it, or send it somewhere that keeps it.',
+          stamp: 'spec: blinks once per second, fully dark between blinks'
+        }
+      };
+
+      const CYCLE = ['ambient', 'session', 'recording', 'off'];
+
+      const nameEl = document.getElementById('stateName');
+      const doingEl = document.getElementById('fDoing');
+      const keepsEl = document.getElementById('fKeeps');
+      const canEl = document.getElementById('fCan');
+      const stampEl = document.getElementById('stateStamp');
+      const buttons = document.querySelectorAll('.controls button');
+
+      let current = 'ambient';
+
+      function setState(key, updateUrl) {
+        if (!STATES[key]) key = 'ambient';
+        current = key;
+        document.body.className = 'state-' + key;
+        nameEl.textContent = STATES[key].name;
+        doingEl.textContent = STATES[key].doing;
+        keepsEl.textContent = STATES[key].keeps;
+        canEl.textContent = STATES[key].can;
+        stampEl.textContent = STATES[key].stamp;
+        buttons.forEach(function (b) {
+          b.setAttribute('aria-pressed', String(b.dataset.state === key));
+        });
+        if (updateUrl && history.replaceState) {
+          const url = new URL(window.location);
+          url.searchParams.set('state', key);
+          history.replaceState(null, '', url);
+        }
+      }
+
+      buttons.forEach(function (b) {
+        b.addEventListener('click', function () { setState(b.dataset.state, true); });
+      });
+
+      // Tap the lamp: step to the next state in the cycle.
+      document.getElementById('lamp').addEventListener('click', function () {
+        const next = CYCLE[(CYCLE.indexOf(current) + 1) % CYCLE.length];
+        setState(next, true);
+      });
+
+      const requested = new URL(window.location).searchParams.get('state');
+      setState(requested || 'ambient', false);
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+      if (!links.length || !('IntersectionObserver' in window)) return;
+      var byId = {};
+      links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+      var heads = Array.prototype.slice.call(document.querySelectorAll('article.spec h2[id]'));
+      function setActive(id) {
+        links.forEach(function (a) { a.classList.remove('active'); });
+        if (byId[id]) byId[id].classList.add('active');
+      }
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-6% 0px -78% 0px', threshold: 0 });
+      heads.forEach(function (h) { obs.observe(h); });
+      if (heads.length) setActive(heads[0].id);
+    })();
+  </script>
+
+</body>
+</html>
