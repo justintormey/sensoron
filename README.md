@@ -2,7 +2,7 @@
 
 **The SensorOn Standard (SOS)**: an open, testable status-light standard for camera-bearing wearables. One lamp, four states, every behavior adapted from a signal the world already reads, and every requirement written to be tested.
 
-- **Read the specification:** [sensoron.org](https://sensoron.org) (until DNS propagates: [justintormey.github.io/sensoron](https://justintormey.github.io/sensoron/))
+- **Read the specification:** [sensoron.org](https://sensoron.org) (until DNS propagates: [demo.justintormey.com/sensor-on](https://demo.justintormey.com/sensor-on/))
 - **Status:** Draft, developed in public. Current version is in [`VERSION`](VERSION); history in [`CHANGELOG.md`](CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/) and are tagged.
 - **Editor:** Justin Tormey
 
