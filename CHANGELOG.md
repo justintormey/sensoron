@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. The project follows [Semantic Versioning](https://semver.org/). The version in `VERSION` is also the draft number shown in the site footer; keep them in sync.
 
+## [0.10.2] - 2026-08-27
+
+Share metadata: og:image / twitter:image wired to the new /og.png share card (Institute style, Pulse mark, four-state row) so links render with a face on every platform; og:url added. Campaign assets rendered alongside it: the one-page spec poster and two social squares (Bring Back the Blink; The blinky light finally has a spec), sources in the workshop repo, renders in Project Media. Metadata-only, PATCH bump.
+
 ## [0.10.1] - 2026-08-25
 
 Public launch wiring. Section 12 gains the public-development paragraph: the spec is developed in public at github.com/justintormey/sensoron, with errata/proposals/open questions as issues, changes as editor-decided pull requests, CC BY 4.0 text license, marks governed by section 15. The public repo goes live with this version (README, CONTRIBUTING, LICENSE, CNAME for sensoron.org, GitHub Pages), the section 14 open questions seeded as labeled issues, and Discussions enabled. The private sensor-on repo remains the workshop; spec artifacts ship to both.
